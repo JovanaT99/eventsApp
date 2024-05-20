@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Categories {
+  id Int @id @default(autoincrement())
+  name String
+  imageUrl String
+  priority Int 
+  subCategories String
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  deleteAt DateTime?  //nullable 
+}
+
+model Events{
+  id Int @id @default(autoincrement())
+  location String
+  latitude  Float
+  longitude Float
+  startTimeAt    DateTime
+  suggestedPeopleCount Int
+  duration  Int
+  description String
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  deleteAt DateTime?  //nullable 
+}
+
+model EventAttendance{
+   id Int @id @default(autoincrement())
+   status String
+   attendanceAt DateTime?
+   createdAt DateTime @default(now())
+   updateAt DateTime @updatedAt
+   deleteAt DateTime?  //nullable 
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  nickname String @unique
+  email      String   @unique
+  imageUrl String?
+  typeUser String 
+  reputation Float
+  phoneNumber String 
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+  deleteAt DateTime?  //nullable 
+}
+
+// IN PROGGRESS 

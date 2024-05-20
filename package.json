@@ -1,0 +1,52 @@
+{
+  "name": "im-api",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "start:api": "ts-node src/server.ts",
+    "dev:api": "nodemon src/server.ts",
+    "tests": "jest",
+    "prettier": "prettier --write \"{,!(node_modules)/**/}*.js\""
+  },
+  "dependencies": {
+    "@google-cloud/logging-winston": "^6.0.0",
+    "@jest/console": "^29.7.0",
+    "@prisma/client": "^5.5.2",
+    "@types/bcrypt": "^5.0.2",
+    "axios": "^1.6.1",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "joi": "^17.11.0",
+    "lodash": "^4.17.21",
+    "prisma": "^5.5.2",
+    "ts-node": "^10.9.1",
+    "tweetnacl": "^1.0.3",
+    "typescript": "^5.0.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.16",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.8",
+    "@types/lodash": "^4.14.201",
+    "@types/supertest": "^2.0.16",
+    "@typescript-eslint/parser": "^6.4.0",
+    "bun-types": "latest",
+    "eslint": "^8.53.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "jest": "^29.7.0",
+    "microtime": "^3.1.1",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1"
+  }
+}
