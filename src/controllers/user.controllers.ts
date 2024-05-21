@@ -1,5 +1,45 @@
-import { Request, Response } from 'express'
-import Joi from 'joi'
+import { Request, Response, NextFunction } from 'express';
+import Joi from 'joi';
+import prisma from '../utils/prisma'; 
+import { HttpValidationError } from '../utils/errors.util';
 
-import { HttpBadRequest, HttpNotFound } from '../utils/errors.util'
-import prisma from '../utils/prisma'
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { nickname, email,imageUrl, type, companyId, reputation, phoneNumber } = await Joi.object({
+      nickname: Joi.string().required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+      imageUrl: Joi.string().uri().optional(),
+      type: Joi.string().required(),
+      companyId: Joi.number().optional(),
+      reputation: Joi.number().required(),
+      phoneNumber: Joi.string().required(),
+    }).validateAsync(req.body);
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (existingUser) {
+      throw new HttpValidationError('User already exists');
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        nickname,
+        email,
+        imageUrl,
+        type,
+        companyId,
+        reputation,
+        phoneNumber,
+      },
+    });
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    next(error);
+  }
+};
