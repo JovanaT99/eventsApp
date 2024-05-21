@@ -13,51 +13,144 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Categories {
-  id Int @id @default(autoincrement())
-  name String
-  imageUrl String
-  priority Int 
+
+model Category {
+  id            Int        @id @default(autoincrement())
+  name          String
+  imageUrl      String
+  priority      Int
   subCategories String
-  createdAt DateTime @default(now())
-  updateAt DateTime @updatedAt
-  deleteAt DateTime?  //nullable 
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime? 
+
+  events        Event[]
+  comments      CategoryComment[]
 }
 
-model Events{
-  id Int @id @default(autoincrement())
-  location String
-  latitude  Float
-  longitude Float
-  startTimeAt    DateTime
-  suggestedPeopleCount Int
-  duration  Int
+model Event {
+  id                    Int       @id @default(autoincrement())
+  userId                Int
+  categoryId            Int
+  subCategory           String
+  location              String
+  lat                   Float
+  lng                   Float
+  startAt               DateTime
+  suggestedPeopleCount  Int
+  duration              Int
+  description           String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  user                  User      @relation(fields: [userId], references: [id])
+  category              Category  @relation(fields: [categoryId], references: [id])
+  attendances           EventAttendance[]
+  messages              EventMessage[]
+  images                EventImage[]
+}
+
+model EventAttendance {
+  id           Int       @id @default(autoincrement())
+  eventId      Int
+  userId       Int
+  status       String
+  attendanceAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  event        Event     @relation(fields: [eventId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  nickname      String
+  email         String    @unique
+  imageUrl      String?
+  type          String
+  companyId     Int?
+  reputation    Float
+  phoneNumber   String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  events        Event[]
+  attendances   EventAttendance[]
+  messages      EventMessage[]
+  images        EventImage[]
+  reviews       Review[]
+  categoryComments CategoryComment[]
+  company       Company?  @relation(fields: [companyId], references: [id])
+}
+
+model Company {
+  id          Int       @id @default(autoincrement())
+  name        String
   description String
-  createdAt DateTime @default(now())
-  updateAt DateTime @updatedAt
-  deleteAt DateTime?  //nullable 
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  users       User[]
 }
 
-model EventAttendance{
-   id Int @id @default(autoincrement())
-   status String
-   attendanceAt DateTime?
-   createdAt DateTime @default(now())
-   updateAt DateTime @updatedAt
-   deleteAt DateTime?  //nullable 
+model EventMessage {
+  id             Int       @id @default(autoincrement())
+  eventId        Int
+  userId         Int
+  content        String
+  attendenceOnly Boolean
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  event          Event     @relation(fields: [eventId], references: [id])
+  user           User      @relation(fields: [userId], references: [id])
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  nickname String @unique
-  email      String   @unique
-  imageUrl String?
-  typeUser String 
-  reputation Float
-  phoneNumber String 
-  createdAt DateTime @default(now())
-  updateAt DateTime @updatedAt
-  deleteAt DateTime?  //nullable 
+model Review {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  targetId    Int
+  targetType  String
+  content     String
+  rate        Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  user        User      @relation(fields: [userId], references: [id])
 }
 
-// IN PROGGRESS 
+model EventImage {
+  id          Int       @id @default(autoincrement())
+  eventId     Int
+  userId      Int
+  imageUrl    String
+  approvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  event       Event     @relation(fields: [eventId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model CategoryComment {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  userId      Int
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  category    Category  @relation(fields: [categoryId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
