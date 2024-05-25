@@ -1,7 +1,7 @@
 import { Express } from 'express'
-
-// import * as UserController from '../controllers/user.controllers'
 import { HttpNotFound } from '../utils/errors.util'
+import * as UserController from '../controllers/user.controllers';
+import * as EventController from '../controllers/event.controllers';
 
 const routes = (app: Express) => {
     app.use((req, res, next) => {
@@ -22,14 +22,14 @@ const routes = (app: Express) => {
     app.get('/v1/health-check', (req, res) => {
         res.sendStatus(200)
     })
+     
+     app.post('/users', UserController.createUser);
 
-    // app.get('/v1/users/search', UserController.searchUsers)
-    // app.get('/v1/users/:id', UserController.getUser)
-
-    // catch all route => 404 Not Found
     app.use(function (req, res, next) {
         return next(new HttpNotFound())
     })
+    app.post('/events', EventController.createEvent);
+
 }
 
 export default routes
