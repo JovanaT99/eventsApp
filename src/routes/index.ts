@@ -2,6 +2,7 @@ import { Express } from 'express'
 import { HttpNotFound } from '../utils/errors.util'
 import * as UserController from '../controllers/user.controllers';
 import * as EventController from '../controllers/event.controllers';
+import * as CategoryController from '../controllers/category.controllers';
 
 const routes = (app: Express) => {
     app.use((req, res, next) => {
@@ -23,12 +24,14 @@ const routes = (app: Express) => {
         res.sendStatus(200)
     })
      
-     app.post('/users', UserController.createUser);
+    app.post('/users', UserController.createUser);
+    app.post('/events', EventController.createEvent);
+    app.post('/category', CategoryController.createCategory);
 
     app.use(function (req, res, next) {
         return next(new HttpNotFound())
     })
-    app.post('/events', EventController.createEvent);
+    
 
 }
 

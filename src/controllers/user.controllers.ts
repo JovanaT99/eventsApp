@@ -34,6 +34,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         companyId,
         reputation,
         phoneNumber,
+        updatedAt: new Date(),
       },
     });
 

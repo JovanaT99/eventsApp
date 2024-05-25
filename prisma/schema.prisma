@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,42 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Category {
-  id            Int        @id @default(autoincrement())
+  id            Int               @id @default(autoincrement())
   name          String
   imageUrl      String
   priority      Int
   subCategories String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  deletedAt     DateTime? 
-
-  events        Event[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime
+  deletedAt     DateTime?
   comments      CategoryComment[]
+  events        Event[]
 }
 
 model Event {
-  id                    Int       @id @default(autoincrement())
-  userId                Int
-  categoryId            Int
-  subCategory           String
-  location              String
-  lat                   Float
-  lng                   Float
-  startAt               DateTime
-  suggestedPeopleCount  Int
-  duration              Int
-  description           String
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  deletedAt             DateTime?
-
-  user                  User      @relation(fields: [userId], references: [id])
-  category              Category  @relation(fields: [categoryId], references: [id])
-  attendances           EventAttendance[]
-  messages              EventMessage[]
-  images                EventImage[]
+  id                   Int               @id @default(autoincrement())
+  userId               Int
+  categoryId           Int
+  subCategory          String
+  location             String
+  lat                  Float
+  lng                  Float
+  startAt              DateTime
+  suggestedPeopleCount Int
+  duration             Int
+  description          String
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  category             Category          @relation(fields: [categoryId], references: [id])
+  user                 User              @relation(fields: [userId], references: [id])
+  attendances          EventAttendance[]
+  images               EventImage[]
+  messages             EventMessage[]
 }
 
 model EventAttendance {
@@ -58,33 +49,31 @@ model EventAttendance {
   status       String
   attendanceAt DateTime?
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  updatedAt    DateTime
   deletedAt    DateTime?
-
   event        Event     @relation(fields: [eventId], references: [id])
   user         User      @relation(fields: [userId], references: [id])
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  nickname      String
-  email         String    @unique
-  imageUrl      String?
-  type          String
-  companyId     Int?
-  reputation    Float
-  phoneNumber   String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-
-  events        Event[]
-  attendances   EventAttendance[]
-  messages      EventMessage[]
-  images        EventImage[]
-  reviews       Review[]
+  id               Int               @id @default(autoincrement())
+  nickname         String
+  email            String            @unique
+  imageUrl         String?
+  type             String
+  companyId        Int?
+  reputation       Float
+  phoneNumber      String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
   categoryComments CategoryComment[]
-  company       Company?  @relation(fields: [companyId], references: [id])
+  events           Event[]
+  attendances      EventAttendance[]
+  images           EventImage[]
+  messages         EventMessage[]
+  reviews          Review[]
+  company          Company?          @relation(fields: [companyId], references: [id])
 }
 
 model Company {
@@ -93,9 +82,8 @@ model Company {
   description String
   imageUrl    String
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime
   deletedAt   DateTime?
-
   users       User[]
 }
 
@@ -106,51 +94,46 @@ model EventMessage {
   content        String
   attendenceOnly Boolean
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  updatedAt      DateTime
   deletedAt      DateTime?
-
   event          Event     @relation(fields: [eventId], references: [id])
   user           User      @relation(fields: [userId], references: [id])
 }
 
 model Review {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  targetId    Int
-  targetType  String
-  content     String
-  rate        Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  user        User      @relation(fields: [userId], references: [id])
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  targetId   Int
+  targetType String
+  content    String
+  rate       Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  deletedAt  DateTime?
+  user       User      @relation(fields: [userId], references: [id])
 }
 
 model EventImage {
-  id          Int       @id @default(autoincrement())
-  eventId     Int
-  userId      Int
-  imageUrl    String
-  approvedAt  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  event       Event     @relation(fields: [eventId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
+  id         Int       @id @default(autoincrement())
+  eventId    Int
+  userId     Int
+  imageUrl   String
+  approvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  deletedAt  DateTime?
+  event      Event     @relation(fields: [eventId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
 }
 
 model CategoryComment {
-  id          Int       @id @default(autoincrement())
-  categoryId  Int
-  userId      Int
-  content     String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  category    Category  @relation(fields: [categoryId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
+  id         Int       @id @default(autoincrement())
+  categoryId Int
+  userId     Int
+  content    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  deletedAt  DateTime?
+  category   Category  @relation(fields: [categoryId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
 }
-

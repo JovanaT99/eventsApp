@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
-import prisma from "src/utils/prisma";
+import prisma from "../utils/prisma";
 
 const eventSchema = Joi.object({
   userId: Joi.number().required(),
@@ -19,6 +19,15 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
   try {
     const { userId, categoryId, subCategory, location, lat, lng, startAt, suggestedPeopleCount, duration, description } = await eventSchema.validateAsync(req.body);
 
+
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!userExists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
     const newEvent = await prisma.event.create({
       data: {
         userId,
@@ -31,6 +40,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
         suggestedPeopleCount,
         duration,
         description,
+        updatedAt: new Date()
       },
     });
 
