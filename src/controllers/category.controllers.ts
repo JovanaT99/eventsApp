@@ -11,17 +11,15 @@ const categorySchema = Joi.object({
 
 export const createCategory = async (req:Request, res:Response, next: NextFunction)=>{
     try{
-        const { name, imageUrl,priority,subCategories} = await categorySchema.validateAsync(req.body);
+    const { name, imageUrl,priority,subCategories} = await categorySchema.validateAsync(req.body);
 
-
-const newCategory = await prisma.category.create({
+    const newCategory = await prisma.category.create({
     data:{
         name,
         imageUrl,
         priority,
         subCategories,
         updatedAt: new Date(),
-
     },
 });
  res.status(201).json(newCategory);

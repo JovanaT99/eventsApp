@@ -19,7 +19,6 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
   try {
     const { userId, categoryId, subCategory, location, lat, lng, startAt, suggestedPeopleCount, duration, description } = await eventSchema.validateAsync(req.body);
 
-
     const userExists = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -43,10 +42,38 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
         updatedAt: new Date()
       },
     });
-
     res.status(201).json(newEvent);
   } catch (err) {
     console.error("Error creating event: ", err);
+    next(err);
+  }
+};
+
+export const getActiveEvents = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const currentDate = new Date();
+    console.log("Current Date:", currentDate);
+
+    const allEvents = await prisma.event.findMany();
+    console.log("All Events: ", allEvents);  
+
+    const activeEvents = allEvents.filter(event => {
+      if (!event.startAt || !event.duration) {
+        console.log("Skipping event due to missing startAt or duration:", event);
+        return false;
+      }
+      const endAt = new Date(new Date(event.startAt).getTime() + event.duration * 60 * 60 * 1000);
+      console.log("Event StartAt:", event.startAt);  
+      console.log("Event Duration:", event.duration);  
+      console.log("Event EndAt:", endAt); 
+      return endAt >= currentDate;
+    });
+
+    console.log("Active Events: ", activeEvents); 
+
+    res.status(200).json(activeEvents);
+  } catch (err) {
+    console.error("Error retrieving active events: ", err);
     next(err);
   }
 };

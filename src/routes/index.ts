@@ -27,6 +27,7 @@ const routes = (app: Express) => {
     app.post('/users', UserController.createUser);
     app.post('/events', EventController.createEvent);
     app.post('/category', CategoryController.createCategory);
+    app.get('/allevents', EventController.getActiveEvents);
 
     app.use(function (req, res, next) {
         return next(new HttpNotFound())
