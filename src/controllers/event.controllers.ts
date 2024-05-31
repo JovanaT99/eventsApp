@@ -5,6 +5,7 @@ import prisma from "../utils/prisma";
 const eventSchema = Joi.object({
   userId: Joi.number().required(),
   categoryId: Joi.number().required(),
+  name: Joi.string().required(),
   subCategory: Joi.string().required(),
   location: Joi.string().required(),
   lat: Joi.number().required(),
@@ -17,7 +18,7 @@ const eventSchema = Joi.object({
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { userId, categoryId, subCategory, location, lat, lng, startAt, suggestedPeopleCount, duration, description } = await eventSchema.validateAsync(req.body);
+    const { userId, categoryId, name, subCategory, location, lat, lng, startAt, suggestedPeopleCount, duration, description } = await eventSchema.validateAsync(req.body);
 
     const userExists = await prisma.user.findUnique({
       where: { id: userId },
@@ -31,6 +32,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
       data: {
         userId,
         categoryId,
+        name,
         subCategory,
         location,
         lat,
@@ -74,6 +76,70 @@ export const getActiveEvents = async (req: Request, res: Response, next: NextFun
     res.status(200).json(activeEvents);
   } catch (err) {
     console.error("Error retrieving active events: ", err);
+    next(err);
+  }
+};
+export const getSearchResult = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, description, category, subCategory } = req.query;
+
+    const searchConditions: any = {
+      AND: []
+    };
+
+    if (name) {
+      const nameWords = (name as string).split(' ').map(word => ({
+        name: {
+          contains: word,
+          mode: 'insensitive',
+        }
+      }));
+      searchConditions.AND.push(...nameWords);
+    }
+
+    if (description) {
+      searchConditions.AND.push({
+        description: {
+          contains: description,
+          mode: 'insensitive',
+        }
+      });
+    }
+
+    if (category) {
+      const categoryCondition = await prisma.category.findFirst({
+        where: {
+          name: {
+            contains: category as string,
+            mode: 'insensitive',
+          }
+        }
+      });
+      if (categoryCondition) {
+        searchConditions.AND.push({
+          categoryId: categoryCondition.id
+        });
+      }
+    }
+
+    if (subCategory) {
+      searchConditions.AND.push({
+        subCategory: {
+          contains: subCategory,
+          mode: 'insensitive',
+        }
+      });
+    }
+
+    const whereConditions = searchConditions.AND.length > 0 ? searchConditions : undefined;
+
+    const events = await prisma.event.findMany({
+      where: whereConditions,
+    });
+
+    res.status(200).json(events);
+  } catch (err) {
+    console.error("Error searching for events: ", err);
     next(err);
   }
 };

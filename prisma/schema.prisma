@@ -24,6 +24,7 @@ model Event {
   id                   Int               @id @default(autoincrement())
   userId               Int
   categoryId           Int
+  name                 String
   subCategory          String
   location             String
   lat                  Float
