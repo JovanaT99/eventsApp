@@ -171,30 +171,26 @@ export const getSearchResult = async (
     }
 
     if (categoryId) {
-      const categoryCondition = await prisma.category.findFirst({
-        where: {
-          name: {
-            contains: categoryId as string,
-            mode: 'insensitive',
-          },
-        },
+      searchConditions.OR.push({
+        categoryId: parseInt(categoryId as string),
       })
+    }
       //Ovo je problem, jer ako neko unese kategoriju koja ne postoji, npr "abc", categoryCondition ce biti false, i nece uci u ovaj if ispod
       //I onda ce on traziti eventove bez filtera za kategoriju
       //ovo mozes resiti kao sto si resila proveri userId unutar createEvent, tj na pocetku ovog getSearchResult, proveris da li category postoji,
       // ako ne postoji, vratis throw new HttpBadRequest('Category not found');
       //Ali najispravnije resenje jeste da korisnik ne trazi po imenu kategorije vec po categoryId npr 1
-      if (categoryCondition) {
-        searchConditions.AND.push({
-          categoryId: categoryCondition.id,
-        })
-      }
-    }
+    //   if (categoryCondition) {
+    //     searchConditions.AND.push({
+    //       categoryId: categoryCondition.id,
+    //     })
+    //   }
+    // }
 
     if (subCategory) {
       searchConditions.OR.push({
         subCategory: {
-          contains: subCategory,
+          contains: subCategory as string,
           mode: 'insensitive',
         },
       })
