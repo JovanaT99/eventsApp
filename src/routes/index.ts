@@ -1,8 +1,10 @@
 import { Express } from 'express'
-import { HttpNotFound } from '../utils/errors.util'
-import * as UserController from '../controllers/user.controllers';
-import * as EventController from '../controllers/event.controllers';
+
 import * as CategoryController from '../controllers/category.controllers';
+import * as EventController from '../controllers/event.controllers';
+import * as UserController from '../controllers/user.controllers';
+import { HttpNotFound } from '../utils/errors.util'
+
 
 const routes = (app: Express) => {
     app.use((req, res, next) => {
@@ -24,11 +26,11 @@ const routes = (app: Express) => {
         res.sendStatus(200)
     })
      
-    app.post('/users', UserController.createUser);
-    app.post('/events', EventController.createEvent);
-    app.post('/category', CategoryController.createCategory);
-    app.get('/allevents', EventController.getActiveEvents);
-    app.get("/events/search", EventController.getSearchResult);
+    app.post('/users', UserController.createUser); //Odlicno
+    app.post('/events', EventController.createEvent); //Odlicno
+    app.post('/category', CategoryController.createCategory); //Odlicno
+    app.get('/events/all', EventController.getActiveEvents); 
+    app.get("/events/search", EventController.getSearchResult); //Odlicno
 
     app.use(function (req, res, next) {
         return next(new HttpNotFound())

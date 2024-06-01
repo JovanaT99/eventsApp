@@ -14,7 +14,7 @@ model Category {
   priority      Int
   subCategories String
   createdAt     DateTime          @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
   comments      CategoryComment[]
   events        Event[]
@@ -34,7 +34,7 @@ model Event {
   duration             Int
   description          String
   createdAt            DateTime          @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime          @updatedAt
   deletedAt            DateTime?
   category             Category          @relation(fields: [categoryId], references: [id])
   user                 User              @relation(fields: [userId], references: [id])
@@ -66,7 +66,7 @@ model User {
   reputation       Float
   phoneNumber      String
   createdAt        DateTime          @default(now())
-  updatedAt        DateTime
+  updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
   categoryComments CategoryComment[]
   events           Event[]
