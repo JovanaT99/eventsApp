@@ -26,11 +26,12 @@ const routes = (app: Express) => {
         res.sendStatus(200)
     })
      
-    app.post('/users', UserController.createUser); //Odlicno
-    app.post('/events', EventController.createEvent); //Odlicno
-    app.post('/category', CategoryController.createCategory); //Odlicno
+    app.post('/users', UserController.createUser); 
+    app.post('/events', EventController.createEvent); 
+    app.post('/category', CategoryController.createCategory); 
     app.get('/events/all', EventController.getActiveEvents); 
-    app.get("/events/search", EventController.getSearchResult); //Odlicno
+    app.get('/events/search', EventController.getSearchResult); 
+    app.get('/events', EventController.getSortResult);
 
     app.use(function (req, res, next) {
         return next(new HttpNotFound())

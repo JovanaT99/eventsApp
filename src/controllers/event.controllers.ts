@@ -46,7 +46,7 @@ export const createEvent = async (
       throw new HttpBadRequest('User not found')
     }
 
-    const categoryExists = await prisma.user.findUnique({
+    const categoryExists = await prisma.category.findUnique({
       where: { id: categoryId },
     })
 
@@ -76,42 +76,6 @@ export const createEvent = async (
   }
 }
 
-// export const getActiveEvents = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const currentDate = new Date()
-//     console.log('Current Date:', currentDate)
-
-//     const allEvents = await prisma.event.findMany()
-//     console.log('All Events: ', allEvents)
-
-//     //TODO ovo ne bi trebala da filtriras ovde vec iz baze da ti je filtirano
-//     //Ali jako pametno, svidja mi se ovaj kod
-//     const activeEvents = allEvents.filter((event) => {
-//       if (!event.startAt || !event.duration) {
-//         console.log('Skipping event due to missing startAt or duration:', event)
-//         return false
-//       }
-//       const endAt = new Date(
-//         new Date(event.startAt).getTime() + event.duration * 60 * 60 * 1000
-//       )
-//       console.log('Event StartAt:', event.startAt)
-//       console.log('Event Duration:', event.duration)
-//       console.log('Event EndAt:', endAt)
-//       return endAt >= currentDate
-//     })
-
-//     console.log('Active Events: ', activeEvents)
-
-//     res.status(200).json(activeEvents)
-//   } catch (err) {
-//     console.error('Error retrieving active events: ', err)
-//     next(err)
-//   }
-// }
 export const getActiveEvents = async (
   req: Request,
   res: Response,
@@ -175,17 +139,6 @@ export const getSearchResult = async (
         categoryId: parseInt(categoryId as string),
       })
     }
-      //Ovo je problem, jer ako neko unese kategoriju koja ne postoji, npr "abc", categoryCondition ce biti false, i nece uci u ovaj if ispod
-      //I onda ce on traziti eventove bez filtera za kategoriju
-      //ovo mozes resiti kao sto si resila proveri userId unutar createEvent, tj na pocetku ovog getSearchResult, proveris da li category postoji,
-      // ako ne postoji, vratis throw new HttpBadRequest('Category not found');
-      //Ali najispravnije resenje jeste da korisnik ne trazi po imenu kategorije vec po categoryId npr 1
-    //   if (categoryCondition) {
-    //     searchConditions.AND.push({
-    //       categoryId: categoryCondition.id,
-    //     })
-    //   }
-    // }
 
     if (subCategory) {
       searchConditions.OR.push({
@@ -209,3 +162,24 @@ export const getSearchResult = async (
     next(err)
   }
 }
+
+export const getSortResult = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const sortOrder = req.query.order === 'asc' ? 'asc' : 'desc';
+
+    const events = await prisma.event.findMany({
+      orderBy: {
+        startAt: sortOrder,
+      },
+    });
+
+    res.status(200).json(events);
+  } catch (err) {
+    console.error('Error sorting events: ', err);
+    next(err);
+  }
+};
