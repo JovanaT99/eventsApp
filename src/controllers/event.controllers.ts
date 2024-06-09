@@ -17,6 +17,15 @@ const eventSchema = Joi.object({
   duration: Joi.number().required(),
   description: Joi.string().required(),
 })
+const searchSchema = Joi.object({
+  name: Joi.string().optional(),
+  description: Joi.string().optional(),
+  categoryId: Joi.number().optional(),
+  subCategory: Joi.string().optional(),
+  order: Joi.string().valid('asc', 'desc').optional(),
+  peopleCountOrder: Joi.string().valid('asc', 'desc').optional(),
+})
+
 
 export const createEvent = async (
   req: Request,
@@ -104,13 +113,20 @@ export const getActiveEvents = async (
     next(err)
   }
 }
-export const getSearchResult = async (
+
+export const getEvents = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { name, description, categoryId, subCategory } = req.query
+    const { error } = searchSchema.validate(req.query)
+    if (error) {
+      throw new HttpBadRequest(error.details[0].message)
+    }
+
+    const { name, description, categoryId, subCategory, order, peopleCountOrder } = req.query
+
     const searchConditions: any = {
       OR: [],
     }
@@ -149,37 +165,40 @@ export const getSearchResult = async (
       })
     }
 
-    const whereConditions =
-      searchConditions.OR.length > 0 ? searchConditions : undefined
+    const whereConditions = searchConditions.OR.length > 0 ? searchConditions : undefined
+
+    const orderByConditions: any = []
+
+    if (order) {
+      orderByConditions.push({
+        startAt: order === 'asc' ? 'asc' : 'desc',
+      })
+    }
+
+    if (peopleCountOrder) {
+      orderByConditions.push({
+        suggestedPeopleCount: peopleCountOrder === 'asc' ? 'asc' : 'desc',
+      })
+    }
 
     const events = await prisma.event.findMany({
       where: whereConditions,
+      orderBy: orderByConditions.length > 0 ? orderByConditions : undefined,
     })
 
     res.status(200).json(events)
   } catch (err) {
-    console.error('Error searching for events: ', err)
+    console.error('Error fetching events: ', err)
     next(err)
   }
 }
 
-export const getSortResult = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const sortOrder = req.query.order === 'asc' ? 'asc' : 'desc';
+// for postman test
 
-    const events = await prisma.event.findMany({
-      orderBy: {
-        startAt: sortOrder,
-      },
-    });
+// /events/search?name=Koncert&categoryId=1
+// events/search?name=Koncert&categoryId=2&order=asc
+// /events/search?name=Koncert&categoryId=1
+// /events/search?name=Koncert&categoryId=2&order=asc
+// /events/search?peopleCountOrder=asc
 
-    res.status(200).json(events);
-  } catch (err) {
-    console.error('Error sorting events: ', err);
-    next(err);
-  }
-};
+
