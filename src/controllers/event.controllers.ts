@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
-import { error } from 'winston';
 
 import { HttpBadRequest } from '../utils/errors.util';
 import prisma from '../utils/prisma';
@@ -34,6 +33,12 @@ const eventMessageSchema = Joi.object({
   attendenceOnly: Joi.boolean().required(),
 
 });
+const eventAttendaceShema = Joi.object({
+  eventId: Joi.number().required(),
+  userId: Joi.number().required(),
+  status:Joi.string().valid('attending','notAttending').required(),
+  attendanceAt: Joi.date().optional(),
+}); 
 
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -211,6 +216,36 @@ const [eventExists, userExists] = await Promise.all([
  res. status(201).json(newMessage);
 }catch(err){
   console.error("Error event message, err");
+  next(err);
+}
+};
+
+export const markEventAttendace = async (req: Request, res: Response, next: NextFunction) =>{
+try{
+  const {eventId, userId, status, attendanceAt} = await eventAttendaceShema.validateAsync(req.body);
+
+  const attendance = await prisma.eventAttendance.upsert({
+    where: {
+      eventId_userId: {
+        eventId,
+        userId,
+      },
+    },
+    update: {
+      status,
+      attendanceAt: attendanceAt ? new Date(attendanceAt) : new Date(),
+    },
+    create: {
+      eventId,
+      userId,
+      status,
+      attendanceAt: attendanceAt ? new Date(attendanceAt) : new Date(),
+    },
+  });
+
+  res.status(200).json(attendance);
+} catch (err) {
+  console.error('Error event attendance: ', err);
   next(err);
 }
 };

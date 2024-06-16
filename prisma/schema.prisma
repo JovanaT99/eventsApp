@@ -50,10 +50,12 @@ model EventAttendance {
   status       String
   attendanceAt DateTime?
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
   event        Event     @relation(fields: [eventId], references: [id])
   user         User      @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
 }
 
 model User {
@@ -83,7 +85,7 @@ model Company {
   description String
   imageUrl    String
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
   users       User[]
 }
@@ -109,7 +111,7 @@ model Review {
   content    String
   rate       Int
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime @updatedAt
   deletedAt  DateTime?
   user       User      @relation(fields: [userId], references: [id])
 }
@@ -121,7 +123,7 @@ model EventImage {
   imageUrl   String
   approvedAt DateTime?
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
   event      Event     @relation(fields: [eventId], references: [id])
   user       User      @relation(fields: [userId], references: [id])
@@ -133,7 +135,7 @@ model CategoryComment {
   userId     Int
   content    String
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
   category   Category  @relation(fields: [categoryId], references: [id])
   user       User      @relation(fields: [userId], references: [id])
