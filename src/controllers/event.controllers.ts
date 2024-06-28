@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import geolib from 'geolib';
 import Joi from 'joi';
 
 import { HttpBadRequest } from '../utils/errors.util';
@@ -24,6 +25,9 @@ const searchSchema = Joi.object({
   categoryId: Joi.number().optional(),
   subcategory: Joi.string().optional(),
   order: Joi.string().valid('peopleLeast', 'peopleMost', 'startingSoon', 'startingLast').optional(),
+  lat: Joi.number().optional(),
+  lng: Joi.number().optional(),
+  radius: Joi.number().optional(), // km 
 });
 
 const eventMessageSchema = Joi.object({
@@ -55,6 +59,9 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
       duration,
       description,
     } = await eventSchema.validateAsync(req.body);
+
+    console.log('Validacija', req.body);
+
 
     const userExists = await prisma.user.findUnique({
       where: { id: userId },
@@ -127,7 +134,7 @@ export const getEvents = async (req: Request, res: Response, next: NextFunction)
       throw new HttpBadRequest(error.details[0].message);
     }
 
-    const { content, categoryId, subcategory, order } = req.query;
+    const { content, categoryId, subcategory, order, lat, lng, radius } = req.query;
 
     const searchConditions: any = {
       OR: [],
@@ -160,10 +167,25 @@ export const getEvents = async (req: Request, res: Response, next: NextFunction)
       orderByConditions.push({ startAt: 'desc' });
     }
 
-    const events = await prisma.event.findMany({
+    let events = await prisma.event.findMany({
       where: searchConditions,
       orderBy: orderByConditions.length > 0 ? orderByConditions : undefined,
     });
+
+    if (lat && lng && radius) {
+      const latitude = parseFloat(lat as string);
+      const longitude = parseFloat(lng as string);
+      const distanceRadius = parseFloat(radius as string) * 1000; // convert radius to meters
+
+      events = events.filter(event => {
+        const distance = geolib.getDistance(
+          { latitude: event.lat, longitude: event.lng },
+          { latitude, longitude }
+        );
+        console.log(`Event ID: ${event.id}, Distance: ${distance} meters`);
+        return distance <= distanceRadius;
+      });
+    }
 
     res.status(200).json(events);
   } catch (err) {
@@ -171,18 +193,12 @@ export const getEvents = async (req: Request, res: Response, next: NextFunction)
     next(err);
   }
 };
-// /events/search?content=Koncert&categoryId=1
-// /events/search?content=Koncert&categoryId=2&order=peopleLeast
-// /events/search?content=Koncert&categoryId=1&order=startingSoon
-// /events/search?subcategory=Muzika&order=peopleMost  // bad req for this 
 
 export const addEventMessages = async (req: Request, res: Response, next: NextFunction)=>{
 try{
  const {eventId, userId, content,attendenceOnly} = await eventMessageSchema.validateAsync(req.body);
 
-//  const eventExists= await prisma.event.findUnique({
-//   where: { id: eventId},
-//  });
+
 const [eventExists, userExists] = await Promise.all([
   prisma.event.findUnique({ where: { id: eventId } }),
   prisma.user.findUnique({ where: { id: userId } }),
@@ -191,10 +207,6 @@ const [eventExists, userExists] = await Promise.all([
  if(!eventExists){
   return res.status(404).json({error:'Event not found'});
  }
-
-//  const userExists = await prisma.user.findUnique({
-//   where: { id:userId},
-//  });
 
  if(!userExists){
   return res.status(404).json({error:'User not found'});
