@@ -31,6 +31,7 @@ const routes = (app: Express) => {
     app.post('/category', CategoryController.createCategory); 
     app.get('/events/all', EventController.getActiveEvents); 
     app.get('/events/search', EventController.getEvents);
+    app.get('/events/search-db', EventController.getEventsInDB);
     app.post('/events/message', EventController.addEventMessages);
     app.post('/events/attendance',EventController.markEventAttendace);
 
