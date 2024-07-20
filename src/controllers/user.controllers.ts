@@ -59,7 +59,21 @@ export const createUser = async (
   }
 }
 
-export const google = async (
+export const googleAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const client_id = process.env.GOOGLE_CLIENT_ID
+    const redirect_url = 'http://localhost:3000/auth/google/callback'
+    res.redirect(
+      `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_url}&response_type=code&scope=profile email`
+    )
+  } catch (e) {}
+}
+
+export const googleCallback = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -72,11 +86,10 @@ export const google = async (
     try {
       // Exchange authorization code for access token
       const { data } = await axios.post('https://oauth2.googleapis.com/token', {
-        client_id:
-          process.env.GOOGLE_CLIENT_ID,
+        client_id: process.env.GOOGLE_CLIENT_ID,
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
         code,
-        redirect_uri: 'http://localhost:3000/auth/google',
+        redirect_uri: 'http://localhost:3000/auth/google/callback',
         grant_type: 'authorization_code',
       })
 

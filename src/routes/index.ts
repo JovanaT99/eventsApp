@@ -26,7 +26,11 @@ const routes = (app: Express) => {
         res.sendStatus(200)
     })
 
-    app.get('/auth/google', UserController.google); 
+
+
+    app.get('/auth/google', UserController.googleAuth); 
+
+    app.get('/auth/google/callback', UserController.googleCallback); 
 
      
     app.post('/users', UserController.createUser); 
