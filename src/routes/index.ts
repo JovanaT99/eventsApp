@@ -25,6 +25,9 @@ const routes = (app: Express) => {
     app.get('/v1/health-check', (req, res) => {
         res.sendStatus(200)
     })
+
+    app.get('/auth/google', UserController.google); 
+
      
     app.post('/users', UserController.createUser); 
     app.post('/events', EventController.createEvent); 
